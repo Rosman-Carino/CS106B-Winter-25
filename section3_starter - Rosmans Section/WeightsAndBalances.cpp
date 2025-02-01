@@ -13,54 +13,79 @@ using namespace std;
  * weights.
  */
 
-bool isMeasurableV1(int target, Vector<int>& weights){
+/**
+ * @brief isMeasurableV1: Naive Version where fully explore the Recursive
+ *                      Tree by letting our base case be when the size of
+ *                      our `weights` is empty.
+ * @param amount
+ * @param weights
+ * @return
+ */
+bool isMeasurableV1(int amount, const Vector<int>& weights) {
     // Base Case
     if (weights.size() == 0) {
-        if (target == 0) { // Success Case
+        if (amount == 0) { // Success Case
             return true;
         } else {
             return false; // Failure Case
         }
     }
     // Recursive Cases
-    int currWeight = weights.remove(0);
+    int currWeight = weights.get(0);
+    // Let's update our weight's vector
+    Vector<int> updatedWeights = weights.subList(1);
     // Choice 1: Place weight on the right scale
+    bool rightScaleChoice = isMeasurableV1(amount - currWeight, updatedWeights);
     // Choice 2: Place weight on the left scale
+    bool leftScaleChoice = isMeasurableV1(amount + currWeight, updatedWeights);
     // Choice 3: Exclude the weight
-    bool rightScaleChoice = isMeasurableV1(target - currWeight, weights);
-    bool leftScaleChoice = isMeasurableV1(target + currWeight, weights);
-    bool excludeChoice = isMeasurableV1(target, weights);
-    weights.insert(0, currWeight);
+    bool excludeChoice = isMeasurableV1(amount, updatedWeights);
+    // See which side it will work
     return rightScaleChoice || leftScaleChoice || excludeChoice;
-
 }
 
-bool isMeasurableV2(int target, Vector<int>& weights){
-    // Base Case
-    if (weights.size() == 0) {
-        if (target == 0) { // Success Case
-            return true;
-        } else {
-            return false; // Failure Case
-        }
-    }
+/**
+ * @brief isMeasurableV2: This is a more optimized version of V1. Once we
+ *                  found the case where `amount` == 0 then there is no
+ *                  need to explore any additional weights from `weights`.
+ * @param amount
+ * @param weights
+ * @return
+ */
+bool isMeasurableV2(int amount, const Vector<int>& weights) {
+    // Base Case: Success Case
+    if (amount == 0) return true;
+    // Base Case: Failure Case
+    if (weights.isEmpty()) return false;
     // Recursive Cases
-    int currWeight = weights.remove(weights.size() - 1);
+    int currWeight = weights.get(0);
+    // Let's update our weight's vector
+    Vector<int> updatedWeights = weights.subList(1);
     // Choice 1: Place weight on the right scale
+    bool rightScaleChoice = isMeasurableV2(amount - currWeight, updatedWeights);
     // Choice 2: Place weight on the left scale
+    bool leftScaleChoice = isMeasurableV2(amount + currWeight, updatedWeights);
     // Choice 3: Exclude the weight
-    bool rightScaleChoice = isMeasurableV2(target - currWeight, weights);
-    bool leftScaleChoice = isMeasurableV2(target + currWeight, weights);
-    bool excludeChoice = isMeasurableV2(target, weights);
-    weights.add(currWeight);
+    bool excludeChoice = isMeasurableV2(amount, updatedWeights);
+    // See which side it will work
     return rightScaleChoice || leftScaleChoice || excludeChoice;
-
 }
 
-
-bool isMeasurableRecV3(int target, Vector<int>& weights, int index){
+/**
+ * @brief isMeasurableRecV3: This is similar to V1, but rather than
+ *                           creating an `updatedWeights` for the next
+ *                           recursive call we can just pass an extra parameter
+ *                           called `index` to keep track of where we are located.
+ *                           This will minimze the amount of auxiliary memory
+ *                           we're using.
+ * @param target
+ * @param weights
+ * @param index
+ * @return
+ */
+bool isMeasurableRecV3(int target, const Vector<int>& weights, int index){
     // Base Case
-    if (index >= weights.size()) {
+    if (index == weights.size()) {
         if (target == 0) { // Success Case
             return true;
         } else {
@@ -70,27 +95,33 @@ bool isMeasurableRecV3(int target, Vector<int>& weights, int index){
     // Recursive Cases
     int currWeight = weights[index];
     // Choice 1: Place weight on the right scale
-    // Choice 2: Place weight on the left scale
-    // Choice 3: Exclude the weight
     bool rightScaleChoice = isMeasurableRecV3(target - currWeight,
                                               weights, index + 1);
+    // Choice 2: Place weight on the left scale
     bool leftScaleChoice = isMeasurableRecV3(target + currWeight,
                                              weights, index + 1);
+    // Choice 3: Exclude the weight
     bool excludeChoice = isMeasurableRecV3(target, weights, index + 1);
     return rightScaleChoice || leftScaleChoice || excludeChoice;
 
 }
 
-bool isMeasurableV3(int target, Vector<int>& weights) {
-    return isMeasurableRecV3(target, weights, 0);
-
-}
-
-
-bool isMeasurableRecV4(int target, Vector<int>& weights, int index) {
+/**
+ * @brief isMeasurableRecV4: This is a similar version to V2, but rather than
+ *                           creating an `updatedWeights` for the next
+ *                           recursive call we can just pass an extra parameter
+ *                           called `index` to keep track of where we are located.
+ *                           This will minimze the amount of auxiliary memory
+ *                           we're using.
+ * @param target
+ * @param weights
+ * @param index
+ * @return
+ */
+bool isMeasurableRecV4(int target, const Vector<int>& weights, int index) {
     // Base Case
     if (target == 0) return true; // Success Case
-    if (index >= weights.size()) return false; // We've explored all `weights`
+    if (index == weights.size()) return false; // We've explored all `weights`
     // Recursive Cases
     int currWeight = weights[index];
     // Choice 1: Place weight on the right scale
@@ -108,16 +139,14 @@ bool isMeasurableRecV4(int target, Vector<int>& weights, int index) {
 
 /**
  * @brief isMeasurable: Wrapper Function to call different versions of
- *                      `isMeasurableRec`. Please look at the commented
- *                      code for `isMeasurableRecV4`
+ *                      `isMeasurableRec`.
  * @param amount
  * @param weights
  * @return
  */
 bool isMeasurable(int amount, const Vector<int>& weights) {
-    Vector<int> weightsCopy = weights; // Doing this to bypass Keith's love for const
-    return isMeasurableV1(amount, weightsCopy);
-    //return isMeasurableRecV4(amount, weightsCopy, 0);
+    return isMeasurableV2(amount, weights);
+    //return isMeasurableRecV3(amount, weights, 0);
 }
 
 /* * * * * Test Cases Below This Point * * * * */
