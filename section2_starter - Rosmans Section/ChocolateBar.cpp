@@ -39,6 +39,34 @@ int numWaysToEatV2(int numSquares) {
 }
 
 
+/**
+ * @brief numWaysToEatV3: This version using a for loop instead. The main
+ *                      idea from this comes from Section 3. Recursion and Iteration, Backtracking
+ *                      where we can use a for loop.
+ * @param numSquares
+ * @return
+ */
+int numWaysToEatV3(int numSquares) {
+    // Safe Guard
+    if (numSquares < 0) error("There are no squares!");
+
+    // Base Case: Problem statement states that given a chocolate with no
+    // squares one can eat it by not eating anything at all. Given a
+    // chocolate with 1 piece then there is only 1 way to eating it by
+    // eating that piece.
+    if (numSquares <= 1) return 1;
+
+    // Recuresive Cases
+    int totalWaysToEat = 0;
+    for (int i = 1; i <= 2; i++) {
+        totalWaysToEat += numWaysToEatV3(numSquares - 1);
+
+    }
+    return totalWaysToEat;
+}
+
+
+
 int numWaysToEat(int numSquares) {
     return numWaysToEatV1(numSquares);
 }

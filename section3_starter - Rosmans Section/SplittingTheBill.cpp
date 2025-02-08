@@ -144,7 +144,6 @@ void listPossiblePaymentsRecV3(int total, const Set<string>& people,
 }
 
 
-
 void listPossiblePayments(int total, const Set<string>& people) {
     // SafeGaurd 1: The `total` is less than 0 call error
     if (total < 0) error("There is no total to split the bill!");
